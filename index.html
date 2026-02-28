@@ -702,6 +702,40 @@ body {
 .fab-bug:hover { transform: scale(1.1); box-shadow: 0 6px 16px rgba(222, 53, 11, 0.45); }
 .fab-bug.show { display: flex; align-items: center; justify-content: center; }
 
+.scroll-hint {
+  position: fixed;
+  bottom: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.scroll-hint.show { opacity: 1; }
+
+.scroll-hint span {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.scroll-hint .arrow {
+  font-size: 1.4rem;
+  color: var(--purple-light);
+  animation: bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -1082,6 +1116,12 @@ function launchApp() {
   renderSteps();
   updateProgress();
   document.getElementById('fabBug').classList.add('show');
+  document.getElementById('scrollHint').classList.add('show');
+  window.addEventListener('scroll', function() {
+    if (window.scrollY > 200) {
+      document.getElementById('scrollHint').classList.remove('show');
+    }
+  }, { passive: true });
 }
 
 // ═══════════════════════════════════════════
@@ -1147,7 +1187,7 @@ function renderSteps() {
     const completed = grpSteps.filter(s => s.result).length;
     const isKey = meta.key;
 
-    html += '<div class="test-group" id="group-' + testNum + '">';
+    html += '<div class="test-group collapsed" id="group-' + testNum + '">';
     html += '<div class="test-group-header ' + (isKey ? 'key-test' : '') + '" onclick="toggleGroup(\'' + testNum + '\')">';
     html += '<span class="test-num">Test ' + testNum + '</span>';
     html += '<span class="test-title">' + meta.name + '</span>';
@@ -1497,6 +1537,11 @@ function showSaveIndicator(state) {
   }
 }
 </script>
+<div class="scroll-hint" id="scrollHint">
+  <span>Scroll for test scenarios</span>
+  <span class="arrow">&#x2193;</span>
+</div>
+
 <button class="fab-bug" id="fabBug" onclick="openBugModal()" title="Report a bug">🐛</button>
 
 <div class="modal-overlay" id="bugModal">
